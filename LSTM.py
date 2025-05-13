@@ -182,147 +182,147 @@ plt.show()
 
 
 
-# MY CODE
-import torch
-import torch.nn as nn
-import numpy as np
-import pandas as pd
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
+# # MY CODE
+# import torch
+# import torch.nn as nn
+# import numpy as np
+# import pandas as pd
+# from tkinter import Tk
+# from tkinter.filedialog import askopenfilename
+# import matplotlib.pyplot as plt
+# from sklearn.preprocessing import MinMaxScaler
 
 
-# ======================
-# 1. Data Loading + Cleaning
-# ======================
+# # ======================
+# # 1. Data Loading + Cleaning
+# # ======================
 
-# user selects CSV file
-Tk().withdraw()
-file_path = askopenfilename(title="select a .csv file", filetypes=[("CSV files", "*.csv")])
-if not file_path:
-    print("no file selected.")
-    exit()
-try:
-    data = pd.read_csv(file_path, delimiter=",")
-    print(f"file loaded: {file_path}")
-except Exception as e:
-    print(f"error loading file: {e}")
-    exit()
-
-
-data = data['Adjusted Potential (V)', 'Adjusted Relative Capacity (mAh/g)', 'Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Type', 'Cycle']
-data['Potential (V)'] = data['Adjusted Potential (V)']
-data['Capacity (mAh/g)'] = data['Adjusted Relative Capacity (mAh/g)']
-data = data['Potential (V)', 'Capacity (mAh/g)', 'Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Type', 'Cycle']
-
-# stating input + output columns
-input_features = ['Potential (V)', 'Capacity (mAh/g)', 'Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Type', 'Cycle']
-output_features = ['Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Cycle']
-
-# seperating data
-data_input = data[input_features]
-data_output = data[output_features]
-
-scaler_input = MinMaxScaler()
-data_input_scaled = scaler_input.fit_transform(data_input)
-
-scaler_output = MinMaxScaler()
-data_output_scaled = scaler_output.fit_transform(data_output)
-
-# Combine input and output data WHY???
-scaled_data = pd.DataFrame(np.hstack([data_input_scaled, data_output_scaled]),columns=input_features + output_features)
+# # user selects CSV file
+# Tk().withdraw()
+# file_path = askopenfilename(title="select a .csv file", filetypes=[("CSV files", "*.csv")])
+# if not file_path:
+#     print("no file selected.")
+#     exit()
+# try:
+#     data = pd.read_csv(file_path, delimiter=",")
+#     print(f"file loaded: {file_path}")
+# except Exception as e:
+#     print(f"error loading file: {e}")
+#     exit()
 
 
-# ======================
-# 2. Sequence Creation
-# ======================
-def create_sequences(data, sequence_length=10):
-    X = []
-    y = []
-    for i in range(len(data) - sequence_length):
-        X.append(data[i:i + sequence_length, :-3])  # Use all input features (last 3 columns are output)
-        y.append(data[i + sequence_length, -3:])  # Predict output features
-    return np.array(X), np.array(y)
+# data = data['Adjusted Potential (V)', 'Adjusted Relative Capacity (mAh/g)', 'Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Type', 'Cycle']
+# data['Potential (V)'] = data['Adjusted Potential (V)']
+# data['Capacity (mAh/g)'] = data['Adjusted Relative Capacity (mAh/g)']
+# data = data['Potential (V)', 'Capacity (mAh/g)', 'Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Type', 'Cycle']
 
-# Create sequences for training
-sequence_length = 10  # You can change this based on your data and how far back you want to look
-X, y = create_sequences(scaled_data.values, sequence_length)
+# # stating input + output columns
+# input_features = ['Potential (V)', 'Capacity (mAh/g)', 'Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Type', 'Cycle']
+# output_features = ['Frequency (Hz)', 'Zre (ohms)', 'Zim (ohms)', 'Cycle']
 
-# Convert to PyTorch tensors
-X_tensor = torch.tensor(X, dtype=torch.float32)
-y_tensor = torch.tensor(y, dtype=torch.float32)
+# # seperating data
+# data_input = data[input_features]
+# data_output = data[output_features]
+
+# scaler_input = MinMaxScaler()
+# data_input_scaled = scaler_input.fit_transform(data_input)
+
+# scaler_output = MinMaxScaler()
+# data_output_scaled = scaler_output.fit_transform(data_output)
+
+# # Combine input and output data WHY???
+# scaled_data = pd.DataFrame(np.hstack([data_input_scaled, data_output_scaled]),columns=input_features + output_features)
+
+
+# # ======================
+# # 2. Sequence Creation
+# # ======================
+# def create_sequences(data, sequence_length=10):
+#     X = []
+#     y = []
+#     for i in range(len(data) - sequence_length):
+#         X.append(data[i:i + sequence_length, :-3])  # Use all input features (last 3 columns are output)
+#         y.append(data[i + sequence_length, -3:])  # Predict output features
+#     return np.array(X), np.array(y)
+
+# # Create sequences for training
+# sequence_length = 10  # You can change this based on your data and how far back you want to look
+# X, y = create_sequences(scaled_data.values, sequence_length)
+
+# # Convert to PyTorch tensors
+# X_tensor = torch.tensor(X, dtype=torch.float32)
+# y_tensor = torch.tensor(y, dtype=torch.float32)
 
 
 
-# ======================
-# 3. Build Model
-# ======================
-# LSTM Model Definition
-class LSTMModel(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size):
-        super(LSTMModel, self).__init__()
-        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
-        self.fc = nn.Linear(hidden_size, output_size)
+# # ======================
+# # 3. Build Model
+# # ======================
+# # LSTM Model Definition
+# class LSTMModel(nn.Module):
+#     def __init__(self, input_size, hidden_size, output_size):
+#         super(LSTMModel, self).__init__()
+#         self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
+#         self.fc = nn.Linear(hidden_size, output_size)
     
-    def forward(self, x):
-        lstm_out, _ = self.lstm(x)
-        # We only care about the output of the last time step
-        last_time_step = lstm_out[:, -1, :]
-        out = self.fc(last_time_step)
-        return out
+#     def forward(self, x):
+#         lstm_out, _ = self.lstm(x)
+#         # We only care about the output of the last time step
+#         last_time_step = lstm_out[:, -1, :]
+#         out = self.fc(last_time_step)
+#         return out
 
 
 
-# ======================
-# 4. Train Model
-# ======================
-# Hyperparameters
-input_size = 7  # Number of input features at each time step
-hidden_size = 64  # Number of hidden units in LSTM
-output_size = 3  # Number of output features
-num_epochs = 50  # Number of training epochs
-batch_size = 32  # Batch size for training
-learning_rate = 0.001  # Learning rate
+# # ======================
+# # 4. Train Model
+# # ======================
+# # Hyperparameters
+# input_size = 7  # Number of input features at each time step
+# hidden_size = 64  # Number of hidden units in LSTM
+# output_size = 3  # Number of output features
+# num_epochs = 50  # Number of training epochs
+# batch_size = 32  # Batch size for training
+# learning_rate = 0.001  # Learning rate
 
-# Initialize the model
-model = LSTMModel(input_size, hidden_size, output_size)
+# # Initialize the model
+# model = LSTMModel(input_size, hidden_size, output_size)
 
-# Loss and optimizer
-criterion = nn.MSELoss()  # Mean Squared Error loss for regression
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+# # Loss and optimizer
+# criterion = nn.MSELoss()  # Mean Squared Error loss for regression
+# optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-# Training loop
-for epoch in range(num_epochs):
-    model.train()  # Set model to training mode
-    optimizer.zero_grad()  # Clear gradients
-    outputs = model(X_tensor)  # Forward pass
-    loss = criterion(outputs, y_tensor)  # Compute loss
-    loss.backward()  # Backward pass
-    optimizer.step()  # Update model weights
+# # Training loop
+# for epoch in range(num_epochs):
+#     model.train()  # Set model to training mode
+#     optimizer.zero_grad()  # Clear gradients
+#     outputs = model(X_tensor)  # Forward pass
+#     loss = criterion(outputs, y_tensor)  # Compute loss
+#     loss.backward()  # Backward pass
+#     optimizer.step()  # Update model weights
     
-    if (epoch+1) % 10 == 0:
-        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
+#     if (epoch+1) % 10 == 0:
+#         print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}")
 
 
 
 
-# ======================
-# 5. evaluate model
-# ======================
-# Switch to evaluation mode
-model.eval()
+# # ======================
+# # 5. evaluate model
+# # ======================
+# # Switch to evaluation mode
+# model.eval()
 
-# Make predictions on the training data
-with torch.no_grad():
-    predictions = model(X_tensor)
+# # Make predictions on the training data
+# with torch.no_grad():
+#     predictions = model(X_tensor)
 
-# Rescale the predictions to original scale
-predictions_rescaled = scaler_output.inverse_transform(predictions.numpy())
+# # Rescale the predictions to original scale
+# predictions_rescaled = scaler_output.inverse_transform(predictions.numpy())
 
-# Plot actual vs predicted values for one feature (e.g., Zre)
-plt.plot(y_tensor[:, 0].numpy(), label="Actual Zre")
-plt.plot(predictions_rescaled[:, 0], label="Predicted Zre")
-plt.legend()
-plt.show()
+# # Plot actual vs predicted values for one feature (e.g., Zre)
+# plt.plot(y_tensor[:, 0].numpy(), label="Actual Zre")
+# plt.plot(predictions_rescaled[:, 0], label="Predicted Zre")
+# plt.legend()
+# plt.show()
 
