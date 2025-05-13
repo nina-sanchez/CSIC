@@ -108,62 +108,10 @@ data["Relative Time (h)"] = relative_time_all
 data["Relative Capacity (mAh/g)"] = capacity_all
 
 
-
-# THIS IS FOR DEBUGGING --> NEED TO FILTER BEFORE TO LEAVE AS '0'
-# bad_freqs = data[data["Frequency (Hz)"] <= 0]
-# if not bad_freqs.empty:
-#     print("found invalid frequencies (zero or negative):")
-#     print(bad_freqs[["Frequency (Hz)"]])
-
-# log scale the frequency
-# data['Frequency (Hz)'] = np.log10(data['Frequency (Hz)'])
-# data['Frequency (Hz)'] = np.where(
-#     data['Frequency (Hz)'] > 0,
-#     np.log10(data['Frequency (Hz)']),
-#     0.0 # will replace with 0.0 if empty
-# )
-
-
-# First, create a copy of the column
-# freq_values = data['Frequency (Hz)'].copy()
-
-# # Apply log10 only to positive values
-# log_freq = np.where(freq_values > 0, np.log10(freq_values), 0.0)
-
-# # Assign it back
-# data['Frequency (Hz)'] = log_freq
-
-
-# # adding last C or D row to first imp. row and rest blank
-# # Identify rows with actionID == 21
-# impedance_mask = data["ActionId"] == 21
-
-# # find index positions of all impedance rows
-# impedance_indices = data.index[impedance_mask]
-
-# # track last valid row (with ActionID == 8)
-# last_valid_idx = None
-
-# # loop through the impedance indices to identify segment starts
-# for i, idx in enumerate(impedance_indices):
-#     if i == 0 or impedance_indices[i-1] != idx - 1:
-#         # this is the first row of a new segment
-#         # look back for last row with ActionID == 8
-#         # last_valid_idx = data.loc[:idx-1][data["ActionId"] == 8].last_valid_index()
-#         subset = data.loc[:idx-1]
-#         last_valid_idx = subset[subset["ActionId"] == 8].last_valid_index()
-
-        
-#         if last_valid_idx is not None:
-#             # copy potential and capacity from the previous valid row
-#             data.at[idx, "Adjusted Potential (V)"] = data.at[last_valid_idx, "Potential (V)"]
-#             data.at[idx, "Adjusted Relative Capacity (mAh/g)"] = data.at[last_valid_idx, "Relative Capacity (mAh/g)"]
-
-# Initialize placeholders
+# taking last C/D values and adding to AI=21 block
 last_valid_potential = None
 last_valid_capacity = None
 
-# Loop through each row
 for idx, row in data.iterrows():
     if row["ActionId"] == 8:
         # Update the "last known" potential and capacity
@@ -174,7 +122,6 @@ for idx, row in data.iterrows():
         # Replace with most recent valid values
         data.at[idx, "Adjusted Potential (V)"] = last_valid_potential
         data.at[idx, "Adjusted Relative Capacity (mAh/g)"] = last_valid_capacity
-
 
 
 # ROUNDING FINAL VALUES
@@ -202,13 +149,7 @@ filtered_data.to_csv("final-data-1302.csv", index=False)
 print("Full data saved as 'final-data-1302.csv' with", len(filtered_data), "rows")
 
 
-
-
-# pseudocode for AI
-# read in file
-
-# select columns that will be fed: frequency, zre, zim, potential, capacity
+# AI
+# input  - frequency, zre, zim, potential, capacity, cycle, type
 # output - potential, capacity
-
-# plot results generated vs real results
     
