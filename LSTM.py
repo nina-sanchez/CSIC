@@ -154,22 +154,42 @@ with torch.no_grad():
 predictions_rescaled = scaler_output.inverse_transform(predictions.numpy())
 
 # Plot actual vs predicted values for Adjusted Potential (V) and Adjusted Relative Capacity (mAh/g)
-plt.figure(figsize=(12, 6))
+# plt.figure(figsize=(12, 6))
 
-# Plot Adjusted Potential (V)
-plt.subplot(1, 2, 1)
-plt.plot(y_tensor[:, 0].numpy(), label="Actual Potential (V)")
-plt.plot(predictions_rescaled[:, 0], label="Predicted Potential (V)")
-plt.title("Actual vs Predicted Potential (V)")
+# # Plot Adjusted Potential (V)
+# plt.subplot(1, 2, 1)
+# plt.plot(y_tensor[:, 0].numpy(), label="Actual Potential (V)")
+# plt.plot(predictions_rescaled[:, 0], label="Predicted Potential (V)")
+# plt.title("Actual vs Predicted Potential (V)")
+# plt.legend()
+
+# # Plot Adjusted Capacity (mAh/g)
+# plt.subplot(1, 2, 2)
+# plt.plot(y_tensor[:, 1].numpy(), label="Actual Capacity (mAh/g)")
+# plt.plot(predictions_rescaled[:, 1], label="Predicted Capacity (mAh/g)")
+# plt.title("Actual vs Predicted Capacity (mAh/g)")
+# plt.legend()
+
+# plt.show()
+
+# Actual values
+actual_capacity = y_tensor[:, 1].numpy()
+actual_potential = y_tensor[:, 0].numpy()
+
+# Predicted values
+predicted_capacity = predictions_rescaled[:, 1]
+predicted_potential = predictions_rescaled[:, 0]
+
+# Plot
+plt.figure(figsize=(8, 6))
+plt.plot(actual_capacity, actual_potential, label="Actual", color="blue")
+plt.plot(predicted_capacity, predicted_potential, label="Predicted", color="orange")
+plt.xlabel("Capacity (mAh/g)")
+plt.ylabel("Potential (V)")
+plt.title("Actual vs Predicted: Potential vs Capacity")
 plt.legend()
-
-# Plot Adjusted Capacity (mAh/g)
-plt.subplot(1, 2, 2)
-plt.plot(y_tensor[:, 1].numpy(), label="Actual Capacity (mAh/g)")
-plt.plot(predictions_rescaled[:, 1], label="Predicted Capacity (mAh/g)")
-plt.title("Actual vs Predicted Capacity (mAh/g)")
-plt.legend()
-
+plt.grid(True)
+plt.tight_layout()
 plt.show()
 
 
