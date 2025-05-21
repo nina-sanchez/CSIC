@@ -1,3 +1,5 @@
+# LSTM AI, last updated May 21st
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler

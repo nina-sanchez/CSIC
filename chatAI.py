@@ -1,4 +1,4 @@
-# WORKIMNG
+# behind AddImpSeg.py --> last edit May 20th
 
 
 # feature importance, randomforestregressor
