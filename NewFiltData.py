@@ -31,6 +31,7 @@ data['Cycle'] = np.nan # adding a cycle column
 data['Capacity (mAh/g)'] = np.nan # adding a mAh/g column
 data['Relative Time (h)'] = np.nan # relative time 
 data['Relative Capacity (mAh/g)'] = np.nan # relative capacity in terms of relative time
+# data['Impedance Segment'] = np.nan
 
 # new columns for adjusted potential and relative capacity
 data["Adjusted Potential (V)"] = np.nan
@@ -114,15 +115,18 @@ last_valid_capacity = None
 
 for idx, row in data.iterrows():
     if row["ActionId"] == 8:
-        # Update the "last known" potential and capacity
+        # update the "last known" potential and capacity
         last_valid_potential = row["Potential (V)"]
         last_valid_capacity = row["Relative Capacity (mAh/g)"]
         
     elif row["ActionId"] == 21:
-        # Replace with most recent valid values
+        # replace with most recent valid values
         data.at[idx, "Adjusted Potential (V)"] = last_valid_potential
         data.at[idx, "Adjusted Relative Capacity (mAh/g)"] = last_valid_capacity
 
+
+# # adding impedance segments
+# data['Impedance Segment'] = (data['Adjusted Relative Capacity (mAh/g)'].ne(data['Adjusted Relative Capacity (mAh/g)'].shift()).cumsum())
 
 # ROUNDING FINAL VALUES
 data['Adjusted Potential (V)'] = data['Adjusted Potential (V)'].round(2)
@@ -153,3 +157,4 @@ print("Full data saved as 'final-data-1302.csv' with", len(filtered_data), "rows
 # input  - frequency, zre, zim, potential, capacity, cycle, type
 # output - potential, capacity
     
+ 
